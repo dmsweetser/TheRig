@@ -33,17 +33,15 @@ def run_script(script_path):
     execution_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     
     build_output = ""
-
-    # Run python script and pipe output to a datetime_stamped file
-    script_args = [sys.executable, build_output]
-    script_args += sys.argv[1:]
     
-    with open(build_output, 'r') as file:
-        original_code = file.read()
-        process = subprocess.Popen(script_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.wait()
-        build_error = process.stderr.read().decode()
-        log_message(build_error)         
+    with open(script_path, 'r') as file:
+        
+        original_code = file.read()        
+        # Run bash script and capture output
+        process = subprocess.Popen(["bash", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        build_error = stderr.decode()
+        log_message(build_error)  
                
         # Get default prompt from config or use a default value
         default_prompt = get_config('default_prompt', "")
