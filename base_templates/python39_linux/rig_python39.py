@@ -14,11 +14,14 @@ from lib.config_manager import *
 client_url = get_config("core_url")
 logging.basicConfig(filename='finalizer.log', level=logging.INFO)
 
+with open("prompt.txt", 'r') as prompt:
+    initial_prompt = prompt.read()
+
 def log_message(message):
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     logging.info(f"{timestamp} - {message}")
 
-def run_python_script(git_path, venv_path, python_script_path):
+def run_script(script_path):
     
     if not is_git_repo_initialized(git_path):
         log_message("Repository not initialized. Initializing...")
@@ -29,34 +32,32 @@ def run_python_script(git_path, venv_path, python_script_path):
     
     execution_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     
-    # Activate virtual environment
-    os.chdir(venv_path)
-    os.system("activate")
-    
     build_output = ""
 
     # Run python script and pipe output to a datetime_stamped file
-    script_args = [sys.executable, python_script_path]
+    script_args = [sys.executable, build_output]
     script_args += sys.argv[1:]
     
-    do_revision = False
-    
-    with open(python_script_path, 'r') as file:
+    with open(build_output, 'r') as file:
         original_code = file.read()
         process = subprocess.Popen(script_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process.wait()
-        build_output = process.stderr.read().decode()
-        log_message(build_output)
-        
-        if len(build_output) > 0:
-            do_revision = True
+        build_error = process.stderr.read().decode()
+        log_message(build_error)         
+               
+        # Get default prompt from config or use a default value
+        default_prompt = get_config('default_prompt', "")
+        revision_prompt = get_config('revision_prompt', "") 
+
+        if "TODO" in file_contents.upper() or "PLACEHOLDER" in file_contents.upper() or len(file_contents) > get_config('wrap_up_cutoff',''):
+            prompt = revision_prompt
         else:
-            do_revision = False
-            log_message(f"No build errors detected and so no revision will be done")
+            prompt = default_prompt
             
-    if do_revision == True:
-        
-        message = f"<s>[INST]Here is the current code:\nFile {python_script_path}\n```{original_code}\n```\nWhen I run the code, these are my current build errors:\n\n{build_output}\n\nGenerate ONLY a full revision of this code that fixes these build errors.\n[/INST]"
+        if build_error != "":
+            message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{build_error}\n\n{prompt}\n\n[/INST]\n"
+        elif build_error == "":
+            message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
                 
         # Get response from web request
         data = {
@@ -74,16 +75,13 @@ def run_python_script(git_path, venv_path, python_script_path):
             
             log_message(f"Revised code length: {len(revised_code)}")
             log_message(f"Original code length: {len(original_code)}")
-                
-            if '''if __name__ == "__main__":''' not in revised_code:
-                revised_code = original_code
             
             os.remove(python_script_path)
             
             with open(python_script_path, 'w') as new_file:
                 new_file.write(revised_code)
                 
-            git_commit(git_path, "Revision done by Code Reviser UI via finalizer.py")
+            git_commit(git_path, "Revision done by Core")
             log_message("Commit made")
             
         except Exception as e:
@@ -108,7 +106,4 @@ def git_commit(path, message):
 
 # Run python script and do it again
 while True:
-    run_python_script(
-        "C:\\Files\\source\\unversioned\\snake_game_infinite\\",
-        "C:\\Files\\source\\unversioned\\snake_game_infinite\\venv\\scripts",
-        "C:\\Files\\source\\unversioned\\snake_game_infinite\\game.py")
+    run_script("source.sh")
