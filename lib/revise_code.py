@@ -1,6 +1,5 @@
 import re
 from lib.config_manager import get_config
-from lib.linter import Linter
 from lib.custom_logger import *
 import time
 

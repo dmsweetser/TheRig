@@ -1,13 +1,11 @@
 from flask import Flask, render_template, request, send_file, abort, jsonify, redirect, url_for
 import gc
-from flask_login import UserMixin, current_user
 from multiprocessing import Array
 from urllib.error import HTTPError
 from urllib.parse import quote_plus, unquote_plus
 from werkzeug.utils import secure_filename
 
 from lib.config_manager import *
-from lib.job_manager import *
 from lib.app_utils import *
 from lib.custom_logger import *
 from lib import revise_code

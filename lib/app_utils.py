@@ -10,7 +10,6 @@ from markupsafe import escape
 from llama_cpp import Llama
 
 from lib.config_manager import *
-from lib.job_manager import *
 from lib.custom_logger import *
 
 import sys, os
@@ -18,6 +17,14 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logger = CustomLogger(get_config("log_folder",""))
+
+def find_process_by_port(port):
+    port = int(port)
+    for conn in psutil.net_connections():
+        if conn.laddr.port == port and conn.status == 'LISTEN':
+            process = psutil.Process(conn.pid)
+            return process.name(), process.pid
+    return None, None
 
 def load_model(model_url, model_folder, model_filename, max_context, logger):
 
