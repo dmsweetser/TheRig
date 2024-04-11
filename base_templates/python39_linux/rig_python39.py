@@ -40,8 +40,8 @@ def run_script(script_path):
         # Run bash script and capture output
         process = subprocess.Popen(["bash", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        build_error = stderr.decode()
-        log_message(build_error)  
+        run_error = stderr.decode()
+        log_message(run_error)  
                
         # Get default prompt from config or use a default value
         default_prompt = get_config('default_prompt', "")
@@ -52,9 +52,9 @@ def run_script(script_path):
         else:
             prompt = default_prompt
             
-        if build_error != "":
+        if run_error != "":
             message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{build_error}\n\n{prompt}\n\n[/INST]\n"
-        elif build_error == "":
+        elif run_error == "":
             message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
                 
         # Get response from web request
