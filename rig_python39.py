@@ -47,7 +47,7 @@ def run_script(script_path, git_path):
         default_prompt = get_config('default_prompt', "")
         revision_prompt = get_config('revision_prompt', "") 
 
-        if "TODO" in file_contents.upper() or "PLACEHOLDER" in file_contents.upper() or len(file_contents) > get_config('wrap_up_cutoff',''):
+        if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > get_config('wrap_up_cutoff',''):
             prompt = revision_prompt
         else:
             prompt = default_prompt
