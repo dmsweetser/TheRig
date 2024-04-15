@@ -31,7 +31,7 @@ echo Virtual environment activated successfully.
 REM Display diagnostic information
 echo.
 echo --- Script Execution ---
-echo Running Python script: CodeReviserUI.py
+echo Running Python script
 echo.
 
 REM Run your Python script within the virtual environment
