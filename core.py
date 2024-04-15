@@ -33,6 +33,14 @@ def process_request():
 
     data = request.get_json() if request.is_json else request.form
 
+    # Get the current ticks as a string
+    now = datetime.datetime.now()
+    current_ticks = now.strftime("%Y%m%d_%H%M%S")
+
+    # Save the dictionary as a JSON file with the current ticks as the name
+    with open(f"{get_config("log_folder")}data_{current_ticks}.json", "w") as outfile:
+        json.dump(data, outfile, indent=4)
+
     prompt = data.get('prompt', '')
     file_contents = data.get('fileContents', '')
 
