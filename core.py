@@ -12,6 +12,9 @@ from lib import revise_code
 
 app = Flask(__name__)
 
+if not os.path.exists(get_config("log_folder","")):
+    os.makedirs(get_config("log_folder",""))
+
 logger = CustomLogger(get_config("log_folder",""))
 
 # Load existing config or set defaults
