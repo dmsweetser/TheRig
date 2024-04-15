@@ -14,14 +14,14 @@ from lib.config_manager import *
 client_url = get_config("core_url")
 logging.basicConfig(filename='finalizer.log', level=logging.INFO)
 
-with open("prompt.txt", 'r') as prompt:
+with open("base_templates/python39_linux/prompt.txt", 'r') as prompt:
     initial_prompt = prompt.read()
 
 def log_message(message):
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     logging.info(f"{timestamp} - {message}")
 
-def run_script(script_path):
+def run_script(script_path, git_path):
     
     if not is_git_repo_initialized(git_path):
         log_message("Repository not initialized. Initializing...")
@@ -104,4 +104,6 @@ def git_commit(path, message):
 
 # Run python script and do it again
 while True:
-    run_script("source.sh")
+    run_script(
+        "base_templates/python39_linux/source.sh", 
+        "base_templates/python39_linux/")
