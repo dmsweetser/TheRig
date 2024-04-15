@@ -17,7 +17,7 @@
   "tensor_split": "",
   "model": "mistral-7b-instruct-v0.2.Q8_0.gguf",
   "model_url": "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q8_0.gguf",
-  "port": "5031",
+  "port": "5032",
   "rope_freq_base": 0,
   "typical_p": 0.68,
   "use_mmap": false,
