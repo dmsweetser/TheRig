@@ -20,7 +20,6 @@ config = load_config()
 # Set defaults if not present in the config
 app.secret_key = get_config('secret_key', '')
 app.config['MODEL_FOLDER'] = get_config('model_folder', '')
-app.config['REVISIONS_DB'] = get_config('revisions_db', '')
 app.config['MODEL_URL'] = get_config('model_url', "")
 app.config['MODEL_FILENAME'] = get_config('model', "")
 app.config['MAX_CONTEXT'] = get_config('n_ctx', "")
