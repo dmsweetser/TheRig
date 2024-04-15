@@ -1,3 +1,4 @@
 venv/*
 *.pyc
 user_config.json
+models/*
