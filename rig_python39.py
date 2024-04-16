@@ -74,9 +74,9 @@ def run_script(script_path, git_path):
             log_message(f"Revised code length: {len(revised_code)}")
             log_message(f"Original code length: {len(original_code)}")
             
-            os.remove(python_script_path)
+            os.remove(script_path)
             
-            with open(python_script_path, 'w') as new_file:
+            with open(script_path, 'w') as new_file:
                 new_file.write(revised_code)
                 
             git_commit(git_path, "Revision done by Core")
