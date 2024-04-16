@@ -49,6 +49,10 @@ def process_request():
     llm = load_model(app.config['MODEL_URL'], app.config['MODEL_FOLDER'], app.config['MODEL_FILENAME'], app.config['MAX_CONTEXT'], logger)
     revision = revise_code.run(file_contents, llm, prompt, logger)
 
+    # Save the dictionary as a JSON file with the current ticks as the name
+    with open(f"{get_config("log_folder")}response_{current_ticks}.json", "w") as outfile:
+        json.dump(revision, outfile, indent=4)
+
     del llm
     gc.collect()
     time.sleep(10)
