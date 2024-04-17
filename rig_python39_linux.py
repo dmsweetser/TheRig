@@ -12,6 +12,14 @@ from lib.config_manager import *
 
 # Define variables
 client_url = get_config("core_url")
+
+# Get default prompt from config or use a default value
+default_prompt = get_config('default_prompt', "")
+revision_prompt = get_config('revision_prompt', "") 
+
+# Get the wrap up cutoff from config
+wrap_up_cutoff = get_config('wrap_up_cutoff','')
+
 logging.basicConfig(filename='rig_python39_linux.log', level=logging.INFO)
 
 with open("base_templates/python39_linux/prompt.txt", 'r') as prompt:
@@ -55,11 +63,7 @@ def run_script(script_path):
         run_error = stderr.decode()
         log_message(run_error)  
                
-        # Get default prompt from config or use a default value
-        default_prompt = get_config('default_prompt', "")
-        revision_prompt = get_config('revision_prompt', "") 
-
-        if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > get_config('wrap_up_cutoff',''):
+        if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > wrap_up_cutoff:
             prompt = revision_prompt
         else:
             prompt = default_prompt
