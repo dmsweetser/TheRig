@@ -3,3 +3,5 @@ venv/*
 user_config.json
 models/*
 logs/*
+*.log
+base_templates/python39_linux/venv/*

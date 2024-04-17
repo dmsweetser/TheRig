@@ -12,7 +12,7 @@ from lib.config_manager import *
 
 # Define variables
 client_url = get_config("core_url")
-logging.basicConfig(filename='finalizer.log', level=logging.INFO)
+logging.basicConfig(filename='rig_python39_linux.log', level=logging.INFO)
 
 with open("base_templates/python39_linux/prompt.txt", 'r') as prompt:
     initial_prompt = prompt.read()
