@@ -140,4 +140,4 @@ def git_commit(path, message):
 
 # Run python script and do it again
 while True:
-    run_script("base_templates/python39_linux/")
+    run_script("./")
