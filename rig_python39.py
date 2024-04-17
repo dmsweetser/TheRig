@@ -23,6 +23,9 @@ def log_message(message):
 
 def run_script(script_path):
     
+    os.chdir(script_path)
+    script_path = "./"
+    
     git_path = script_path
     batch_file = f"{script_path}source.sh"
     script_file = f"{script_path}source.py"
@@ -140,4 +143,4 @@ def git_commit(path, message):
 
 # Run python script and do it again
 while True:
-    run_script("./")
+    run_script("base_templates/python39_linux/")
