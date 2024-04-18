@@ -34,78 +34,77 @@ def run_script(script_path):
     os.chdir(script_path)
     script_path = "./"
     
-    git_path = script_path
-    batch_file = f"{script_path}source.sh"
-    script_file = f"{script_path}source.py"
-    requirements_file = f"{script_path}requirements.txt"
-    
-    prompt_file = f"{script_path}prompt.txt"
-    with open(prompt_file, 'r') as prompt:
-        initial_prompt = prompt.read()
-    
-    if not is_git_repo_initialized(git_path):
-        log_message("Repository not initialized. Initializing...")
-        git_init(git_path)
-        log_message("Repository initialized.")
-    else:
-        log_message("Repository already initialized.")
-    
-    execution_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    
-    build_output = ""
-    
-    with open(script_file, 'r') as file:
+    # This runs in a continuous loop until you kill it
+    while True:
+        git_path = script_path
+        batch_file = f"{script_path}source.sh"
+        script_file = f"{script_path}source.py"
+        requirements_file = f"{script_path}requirements.txt"
         
-        original_code = file.read()        
-        # Run bash script and capture output
-        process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        run_error = stderr.decode()
-        log_message(run_error)  
-               
-        if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > wrap_up_cutoff:
-            prompt = revision_prompt
+        prompt_file = f"{script_path}prompt.txt"
+        with open(prompt_file, 'r') as prompt:
+            initial_prompt = prompt.read()
+        
+        if not is_git_repo_initialized(git_path):
+            log_message("Repository not initialized. Initializing...")
+            git_init(git_path)
+            log_message("Repository initialized.")
         else:
-            prompt = default_prompt
-            
-        if run_error != "":
-            message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{run_error}\n\n{prompt}\n\n[/INST]\n"
-        elif run_error == "":
-            message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
-                
-        # Get response from web request
-        data = {
-            'prompt': message,
-            'fileContents': original_code
-        }
+            log_message("Repository already initialized.")
         
-        req = Request(client_url, json.dumps(data).encode(), method="POST")
-        req.add_header('Content-Type', 'application/json')
-
-        try:
-            response = urlopen(req)
-            response_content = response.read()
-            revised_code = response_content.decode()        
+        execution_date = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        build_output = ""
+        
+        with open(script_file, 'r') as file:
             
-            log_message(f"Revised code length: {len(revised_code)}")
-            log_message(f"Original code length: {len(original_code)}")
-            
-            os.remove(script_file)
-            
-            with open(script_file, 'w') as new_file:
-                new_file.write(revised_code)
+            original_code = file.read()        
+            # Run bash script and capture output
+            process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            run_error = stderr.decode()
+            log_message(run_error)  
                 
-            git_commit(git_path, "Revision done by The Rig")
-            log_message("Commit made for code revision")
+            if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > wrap_up_cutoff:
+                prompt = revision_prompt
+            else:
+                prompt = default_prompt
+                
+            if run_error != "":
+                message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{run_error}\n\n{prompt}\n\n[/INST]\n"
+            elif run_error == "":
+                message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
+                    
+            # Get response from web request
+            data = {
+                'prompt': message,
+                'fileContents': original_code
+            }
             
-        except Exception as e:
-            log_message(f"Error: {e}")
-            
+            req = Request(client_url, json.dumps(data).encode(), method="POST")
+            req.add_header('Content-Type', 'application/json')
 
-    with open(requirements_file, 'r') as file:        
-        requirements = file.read()        
-        prompt = "Generate ONLY a full revision of this requirements.txt for my current code."
-        message = f"<s>[INST]Here is the current code:\n```\n{original_code}\n```\nHere is the current contents of my requirements.txt:\n```\n{requirements}\n```\n\n{prompt}\n\n[/INST]\n"
+            try:
+                response = urlopen(req)
+                response_content = response.read()
+                revised_code = response_content.decode()        
+                
+                log_message(f"Revised code length: {len(revised_code)}")
+                log_message(f"Original code length: {len(original_code)}")
+                
+                os.remove(script_file)
+                
+                with open(script_file, 'w') as new_file:
+                    new_file.write(revised_code)
+                    
+                git_commit(git_path, "Revision done by The Rig")
+                log_message("Commit made for code revision")
+                
+            except Exception as e:
+                log_message(f"Error: {e}")                
+
+        prompt = "Generate ONLY a requirements.txt for my current code."
+        message = f"<s>[INST]Here is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
         data = {
             'prompt': message,
             'fileContents': original_code
@@ -145,6 +144,5 @@ def git_commit(path, message):
     subprocess.check_call(["git", "add", "."], cwd=path)
     subprocess.check_call(["git", "commit", "-m", message, path])
 
-# Run python script and do it again
-while True:
-    run_script("base_templates/python39_linux/")
+# Start the thing
+run_script("base_templates/python39_linux/")
