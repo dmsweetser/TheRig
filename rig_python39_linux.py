@@ -107,7 +107,7 @@ def run_script(script_path):
             message = f"<s>[INST]Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n[/INST]\n"
             data = {
                 'prompt': message,
-                'fileContents': revised_code
+                'fileContents': ''
             }        
             req = Request(client_url, json.dumps(data).encode(), method="POST")
             req.add_header('Content-Type', 'application/json')
