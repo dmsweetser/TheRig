@@ -16,6 +16,7 @@ client_url = get_config("core_url")
 # Get default prompt from config or use a default value
 default_prompt = get_config('default_prompt', "")
 revision_prompt = get_config('revision_prompt', "") 
+requirements_prompt = get_config('requirements_prompt', "")
 
 # Get the wrap up cutoff from config
 wrap_up_cutoff = get_config('wrap_up_cutoff','')
@@ -103,29 +104,28 @@ def run_script(script_path):
             except Exception as e:
                 log_message(f"Error: {e}")                
 
-        prompt = "Generate ONLY a requirements.txt for my current code."
-        message = f"<s>[INST]Here is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
-        data = {
-            'prompt': message,
-            'fileContents': original_code
-        }        
-        req = Request(client_url, json.dumps(data).encode(), method="POST")
-        req.add_header('Content-Type', 'application/json')
-        try:
-            response = urlopen(req)
-            response_content = response.read()
-            new_requirements = response_content.decode()        
-            
-            os.remove(requirements_file)
-            
-            with open(requirements_file, 'w') as new_file:
-                new_file.write(new_requirements)
+            message = f"<s>[INST]Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n[/INST]\n"
+            data = {
+                'prompt': message,
+                'fileContents': revised_code
+            }        
+            req = Request(client_url, json.dumps(data).encode(), method="POST")
+            req.add_header('Content-Type', 'application/json')
+            try:
+                response = urlopen(req)
+                response_content = response.read()
+                new_requirements = response_content.decode()        
                 
-            git_commit(git_path, "Requirements.txt updated by The Rig")
-            log_message("Commit made for requirements.txt")
-            
-        except Exception as e:
-            log_message(f"Error: {e}")
+                os.remove(requirements_file)
+                
+                with open(requirements_file, 'w') as new_file:
+                    new_file.write(new_requirements)
+                    
+                git_commit(git_path, "Requirements.txt updated by The Rig")
+                log_message("Commit made for requirements.txt")
+                
+            except Exception as e:
+                log_message(f"Error: {e}")
 
 def is_git_repo_initialized(path):
     try:

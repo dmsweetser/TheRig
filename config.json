@@ -32,5 +32,6 @@
   "top_p": 0.99,
   "n_ctx": 32768,
   "log_folder": "logs/",
-  "wrap_up_cutoff": 35000
+  "wrap_up_cutoff": 35000,
+  "requirements_prompt": "Generate ONLY a sample requirements.txt file that would work for this code."
 }
