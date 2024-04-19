@@ -29,13 +29,10 @@ echo "Virtual environment activated successfully."
 # Upgrade pip
 python -m pip install --upgrade pip
 
-# Define Python script as a string literal
-python_script='
-print("Hello, world!")
-'
+python -m pip install -r requirements.txt
 
 # Execute Python script
-python -c "$python_script"
+python source.py
 
 # Deactivate the virtual environment
 deactivate
