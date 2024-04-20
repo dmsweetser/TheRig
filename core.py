@@ -66,7 +66,7 @@ def process_request():
     return revision
 
 request_queue = Queue()
-worker_pool = Pool(2)
+worker_pool = Pool(50)
 
 # Wrap the Flask application with a WSGI callable
 def handle_request(environ, start_response):
