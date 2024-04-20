@@ -63,7 +63,7 @@ def run_script(script_path):
             # Run bash script and capture output
             process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
-            run_error = stderr.decode()
+            run_error = stderr.decode()[:3000]
             log_message(run_error)  
                 
             if "TODO" in original_code.upper() or "PLACEHOLDER" in original_code.upper() or len(original_code) > wrap_up_cutoff:
