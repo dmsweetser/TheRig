@@ -23,7 +23,7 @@ def run(original_code, llama_model, prompt, logger):
     extract_from_markdown = get_config('extract_from_markdown', '')
     
     if extract_from_markdown:
-        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)\n```', revised_code, re.DOTALL)
+        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)(?:\n```|$)', revised_code, re.DOTALL)
         revised_code = '\n'.join(code_blocks) if code_blocks else revised_code
     
     end_time = time.time() # Get the end time
