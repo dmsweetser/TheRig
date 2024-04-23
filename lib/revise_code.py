@@ -3,6 +3,28 @@ from lib.config_manager import get_config
 from lib.custom_logger import *
 import time
 
+def extract_code_blocks(markdown_text):
+    code_blocks = []
+    lines = markdown_text.split('\n')
+    in_code_block = False
+    code_block = []
+
+    for line in lines:
+        if line.startswith('```csharp') or line.startswith('```python'):
+            in_code_block = True
+        elif line.startswith('```'):
+            if code_block:
+                code_blocks.append('\n'.join(code_block))
+            in_code_block = False
+            code_block = []
+        elif in_code_block:
+            code_block.append(line)
+
+    if code_block:
+        code_blocks.append('\n'.join(code_block))
+
+    return '\n\n'.join(code_blocks)
+
 def run(original_code, llama_model, prompt, logger):
 
     start_time = time.time() # Get the start time
@@ -23,8 +45,7 @@ def run(original_code, llama_model, prompt, logger):
     extract_from_markdown = get_config('extract_from_markdown', '')
     
     if extract_from_markdown:
-        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)(?:\n```|$)', revised_code, re.DOTALL)
-        revised_code = '\n'.join(code_blocks) if code_blocks else revised_code
+        revised_code = extract_code_blocks(revised_code)
     
     end_time = time.time() # Get the end time
     duration = end_time - start_time # Calculate the duration
