@@ -9,21 +9,26 @@ def extract_code_blocks(markdown_text):
     in_code_block = False
     code_block = []
 
-    for line in lines:
-        if line.startswith('```csharp') or line.startswith('```python'):
-            in_code_block = True
-        elif line.startswith('```'):
-            if code_block:
-                code_blocks.append('\n'.join(code_block))
-            in_code_block = False
-            code_block = []
-        elif in_code_block:
-            code_block.append(line)
-
-    if code_block:
-        code_blocks.append('\n'.join(code_block))
-
-    return '\n\n'.join(code_blocks)
+    if 'csharp' in markdown_text or 'python' in markdown_text:
+        for line in lines:
+            if line.startswith('```csharp') or line.startswith('```python'):
+                in_code_block = True
+            elif line.startswith('```'):
+                if code_block:
+                    code_blocks.append('\n'.join(code_block))
+                in_code_block = False
+                code_block = []
+            elif in_code_block:
+                code_block.append(line)
+        if code_block:
+            code_blocks.append('\n'.join(code_block))
+        return '\n\n'.join(code_blocks)
+    else:
+        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)(?:\n```|$)', revised_code, re.DOTALL)
+        if code_blocks:
+            return '\n'.join(code_blocks)
+        else:
+            return revised_code
 
 def run(original_code, llama_model, prompt, logger):
 
