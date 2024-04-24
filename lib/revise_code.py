@@ -9,7 +9,7 @@ def extract_code_blocks(markdown_text):
     in_code_block = False
     code_block = []
 
-    if 'csharp' in markdown_text or 'python' in markdown_text:
+    if '```csharp' in markdown_text or '```python' in markdown_text:
         for line in lines:
             if line.startswith('```csharp') or line.startswith('```python'):
                 in_code_block = True
