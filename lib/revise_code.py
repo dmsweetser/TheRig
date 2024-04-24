@@ -24,11 +24,11 @@ def extract_code_blocks(markdown_text):
             code_blocks.append('\n'.join(code_block))
         return '\n\n'.join(code_blocks)
     else:
-        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)(?:\n```|$)', revised_code, re.DOTALL)
+        code_blocks = re.findall(r'```(?:\w+)?\n(.*?)(?:\n```|$)', markdown_text, re.DOTALL)
         if code_blocks:
             return '\n'.join(code_blocks)
         else:
-            return revised_code
+            return markdown_text
 
 def run(original_code, llama_model, prompt, logger):
 
