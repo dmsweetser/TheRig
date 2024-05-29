@@ -1,5 +1,5 @@
 {
-  "core_url": "http://192.168.12.220:5032/process_request",
+  "core_url": "http://mini_mob:5032/process_request",
   "n_threads_batch": 4,
   "top_k": 85,
   "use_mlock": false,
