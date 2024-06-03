@@ -111,13 +111,16 @@ def run_script(script_path):
                     response_content = response.read()
                     new_requirements = response_content.decode()        
                     
-                    os.remove(requirements_file)
-                    
-                    with open(requirements_file, 'w') as new_file:
-                        new_file.write(new_requirements)
+                    if new_requirements != "":
+                        os.remove(requirements_file)
                         
-                    git_commit(git_path, "Requirements.txt updated by The Rig")
-                    log_message("Commit made for requirements.txt")
+                        with open(requirements_file, 'w') as new_file:
+                            new_file.write(new_requirements)
+                            
+                        git_commit(git_path, "Requirements.txt updated by The Rig")
+                        log_message("Commit made for requirements.txt")
+                    else:
+                        log_message("No commit made for requirements.txt - response was empty")
                     
                 except Exception as e:
                     log_message(f"Error: {e}")
