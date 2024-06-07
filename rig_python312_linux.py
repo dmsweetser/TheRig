@@ -105,11 +105,7 @@ def run_script(script_path):
                 }        
                 req = Request(client_url, json.dumps(data).encode(), method="POST")
                 req.add_header('Content-Type', 'application/json')
-                try:
-                    response = urlopen(req)
-                    response_content = response.read()
-                    new_requirements = response_content.decode()        
-                    
+
                 try:
                     response = urlopen(req)
                     response_content = response.read()
