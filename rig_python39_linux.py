@@ -67,9 +67,9 @@ def run_script(script_path):
                     prompt = default_prompt
                     
                 if run_error != "":
-                    message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{run_error}\n\n{prompt}\n\n[/INST]\n"
+                    message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST>\n"
                 elif run_error == "":
-                    message = f"<s>[INST]Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n[/INST]\n"
+                    message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST>\n"
                         
                 # Get response from web request
                 data = {
@@ -99,7 +99,7 @@ def run_script(script_path):
                 except Exception as e:
                     log_message(f"Error: {e}")                
 
-                message = f"<s>[INST]Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n[/INST]\n"
+                message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST>\n"
                 data = {
                     'prompt': message,
                     'fileContents': ''
