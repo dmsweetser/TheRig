@@ -27,7 +27,7 @@
   "session_type": "filesystem",
   "secret_key": "your_secret_key",
   "extract_from_markdown": true,
-  "revision_prompt": "Generate ONLY a full revision of this code that completely implements all features.",
+  "revision_prompt": "Generate ONLY a full revision of the code above that completely removes all comments and redundant code.",
   "main_gpu": 0,
   "top_p": 0.99,
   "n_ctx": 65536,
