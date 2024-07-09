@@ -100,7 +100,15 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 except Exception as e:
                     log_message(f"Error: {e}")                
 
-                message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST>\n"
+                # Run again to get latest error for the requirements file generation
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                run_error = stderr.decode()[:3000]
+
+                if run_error != "":
+                    message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST>\n"
+                else:
+                    message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST>\n"
                 data = {
                     'prompt': message,
                     'fileContents': ''
