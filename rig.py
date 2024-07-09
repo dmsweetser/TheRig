@@ -68,7 +68,7 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     prompt = default_prompt
                     
                 if run_error != "":
-                    message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST>\n"
+                    message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST>\n"
                 elif run_error == "":
                     message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST>\n"
                         
