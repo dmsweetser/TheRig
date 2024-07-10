@@ -57,14 +57,9 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 
                 original_code = file.read()        
                 # Run bash script and capture output
-                run_error = ""
-                try:
-                    process = subprocess.run(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
-                    # Get the error output
-                    run_error = process.stderr.decode()[:3000]
-                except:
-                    run_error = process.stderr.decode()[:3000]
-
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                run_error = stderr.decode()[:3000]
                 log_message(run_error)  
                     
                 if len(original_code) > wrap_up_cutoff or run_error != "":
@@ -106,13 +101,9 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     log_message(f"Error: {e}")                
 
                 # Run again to get latest error for the requirements file generation
-                run_error = ""
-                try:
-                    process = subprocess.run(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
-                    # Get the error output
-                    run_error = process.stderr.decode()[:3000]
-                except:
-                    run_error = process.stderr.decode()[:3000]
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+                stdout, stderr = process.communicate()
+                run_error = stderr.decode()[:3000]
 
                 if run_error != "":
                     message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest execution error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST>\n"
