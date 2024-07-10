@@ -57,9 +57,13 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 
                 original_code = file.read()        
                 # Run bash script and capture output
-                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # Wait for 20 seconds
+                time.sleep(10)
                 stdout, stderr = process.communicate()
                 run_error = stderr.decode()[:3000]
+                # Terminate the process
+                process.terminate()
                 log_message(run_error)  
                     
                 if len(original_code) > wrap_up_cutoff or run_error != "":
@@ -101,9 +105,13 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     log_message(f"Error: {e}")                
 
                 # Run again to get latest error for the requirements file generation
-                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # Wait for 20 seconds
+                time.sleep(10)
                 stdout, stderr = process.communicate()
                 run_error = stderr.decode()[:3000]
+                # Terminate the process
+                process.terminate()
 
                 if run_error != "":
                     message = f"<s><INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest execution error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST>\n"
