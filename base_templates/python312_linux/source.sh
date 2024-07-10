@@ -32,7 +32,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
 # Execute Python script
-python source.py
+timeout 20 python source.py
 
 # Deactivate the virtual environment
 deactivate
