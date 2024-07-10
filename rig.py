@@ -101,7 +101,7 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     log_message(f"Error: {e}")                
 
                 # Run again to get latest error for the requirements file generation
-                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
                 stdout, stderr = process.communicate()
                 run_error = stderr.decode()[:3000]
 
