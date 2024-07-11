@@ -154,3 +154,38 @@ def git_init(path):
 def git_commit(path, message):
     subprocess.check_call(["git", "add", "--all"], cwd=path)
     subprocess.check_call(["git", "commit", "-m", message, path])
+
+def main():
+    print("What framework should the rig use?")
+    print("1. dotnet 8")
+    print("2. python 3.9")
+    print("3. python 3.12")
+
+    choice = input("Enter your choice (1/2/3): ")
+
+    if choice == "1":
+        run_rig(
+            "base_templates/dotnet8_linux/", 
+            "rig_dotnet8_linux.log",
+            "Program.cs",
+            "nuget_prompt",
+            "packages.config")
+    elif choice == "2":
+        run_rig(
+            "base_templates/python39_linux/", 
+            "rig_python39_linux.log",
+            "source.py",
+            "requirements_prompt",
+            "requirements.txt")
+    elif choice == "3":
+        run_rig(
+            "base_templates/python312_linux/", 
+            "rig_python312_linux.log",
+            "source.py",
+            "requirements_prompt",
+            "requirements.txt")
+    else:
+        print("Invalid choice. Please enter 1, 2, or 3.")
+
+if __name__ == "__main__":
+    main()

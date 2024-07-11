@@ -7,7 +7,7 @@ fi
 echo "Virtual environment activated successfully."
 
 # Execute Python script
-python rig_python312_linux.py
+python rig.py
 
 # Deactivate the virtual environment
 deactivate
