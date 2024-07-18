@@ -4,6 +4,7 @@ import shutil
 from lib.custom_logger import *
 
 def load_config():
+
    config_file = "config.json"
    user_config_file = "user_config.json"
 
@@ -38,6 +39,9 @@ def is_numeric(value):
 def get_config(key, default=None):
    config = load_config()
 
+   config_file = "config.json"
+   user_config_file = "user_config.json"
+
    if key not in config:
        config[key] = default
        update_config(key, default)
@@ -51,6 +55,9 @@ def get_config(key, default=None):
 
 def update_config(key, value):
    config = load_config()
+
+   config_file = "config.json"
+   user_config_file = "user_config.json"
 
    # Cast the value to the appropriate type if it is numeric
    if is_numeric(value):
