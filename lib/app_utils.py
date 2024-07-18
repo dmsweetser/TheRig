@@ -53,14 +53,15 @@ def load_model(model_url, model_folder, model_filename, max_context, logger):
         "rope_freq_base": 0,
         "numa": False,
         "max_tokens": max_context,
-        "verbose": True
+        "verbose": True,
+        "model": model_path
     }
 
     # Update llama_params with values from config or use defaults
     llama_params = {key: get_config(key, default_value) for key, default_value in default_llama_params.items()}
 
     try:
-        return Llama(model_path, **llama_params)
+        return Llama(**llama_params)
     except Exception as e:
         logger.log("Failed to create Llama object:", str(e))
         return None
