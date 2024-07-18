@@ -37,8 +37,16 @@ app.config['REVISIONS_PER_PAGE'] = get_config('revisions_per_page', "")
 app.config['SESSION_TYPE'] = get_config('session_type', '')
 app.config['MAX_FILE_SIZE'] = get_config('max_file_size', "")
 
-@app.route('/process_request', methods=['POST'])
-def process_request():
+@app.route('/process_request_creative', methods=['POST'])
+def process_request_creative():
+    return process_request(app.config["MODEL_FILENAME_CREATIVE"])
+
+@app.route('/process_request_cleanup', methods=['POST'])
+def process_request_cleanup():
+    return process_request(app.config["MODEL_FILENAME_CLEANUP"])
+
+
+def process_request(model_filename):
 
     data = request.get_json() if request.is_json else request.form
 
@@ -53,7 +61,7 @@ def process_request():
     prompt = data.get('prompt', '')
     file_contents = data.get('fileContents', '')
 
-    llm = load_model(app.config['MODEL_URL'], app.config['MODEL_FOLDER'], app.config['MODEL_FILENAME'], app.config['MAX_CONTEXT'], logger)
+    llm = load_model(app.config['MODEL_URL'], app.config['MODEL_FOLDER'], model_filename, app.config['MAX_CONTEXT'], logger)
     revision = revise_code.run(file_contents, llm, prompt, logger)
 
     # Save the dictionary as a JSON file with the current ticks as the name
