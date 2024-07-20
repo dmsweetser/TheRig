@@ -60,12 +60,11 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
         "repeat_penalty": "1.01",
         "max_tokens": "16384",
         "typical_p": "0.68",
-        "n_batch": "2048",
-        "model": "model_path"
+        "n_batch": "2048"
     }
 
     try:
-        return Llama(**llama_params)
+        return Llama(model_path, **llama_params)
     except Exception as e:
         logger.log("Failed to create Llama object:", str(e))
         return None
