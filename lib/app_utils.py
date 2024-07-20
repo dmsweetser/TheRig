@@ -16,7 +16,7 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-logger = CustomLogger(get_config("log_folder",""))
+logger = CustomLogger(get_config("log_folder",False))
 
 def find_process_by_port(port):
     port = int(port)
@@ -26,7 +26,7 @@ def find_process_by_port(port):
             return process.name(), process.pid
     return None, None
 
-def load_model(model_url, model_folder, model_filename, max_context, logger):
+def load_model(model_url, model_folder, model_filename, max_context, logger, is_creative):
 
     model_path = model_folder + model_filename
 
@@ -53,12 +53,11 @@ def load_model(model_url, model_folder, model_filename, max_context, logger):
         "rope_freq_base": 0,
         "numa": False,
         "max_tokens": max_context,
-        "verbose": True,
-        "model": model_path
+        "verbose": True
     }
 
     # Update llama_params with values from config or use defaults
-    llama_params = {key: get_config(key, default_value) for key, default_value in default_llama_params.items()}
+    llama_params = {key: get_config(key,is_creative) for key in default_llama_params.items()}
 
     try:
         return Llama(**llama_params)

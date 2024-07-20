@@ -27,18 +27,18 @@ def run(original_code, llama_model, prompt, logger):
 
     response = llama_model.create_completion(
         prompt,
-        temperature=get_config("temperature",""),
-        top_p=get_config("top_p",""),
-        top_k=get_config("top_k",""),
-        repeat_penalty=get_config("repeat_penalty",""),
-        typical_p=get_config("typical_p",""),
-        max_tokens=get_config("max_tokens","")
+        temperature=get_config("temperature",False),
+        top_p=get_config("top_p",False),
+        top_k=get_config("top_k",False),
+        repeat_penalty=get_config("repeat_penalty",False),
+        typical_p=get_config("typical_p",False),
+        max_tokens=get_config("max_tokens",False)
         )
 
     revised_code = response['choices'][0]['text']
     
     # Check if extracting from Markdown is enabled in config
-    extract_from_markdown = get_config('extract_from_markdown', '')
+    extract_from_markdown = get_config('extract_from_markdown',False)
     
     if extract_from_markdown:
         revised_code = extract_code_blocks(revised_code)

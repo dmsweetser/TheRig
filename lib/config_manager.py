@@ -6,9 +6,15 @@ from lib.custom_logger import *
 def is_numeric(value):
    return isinstance(value, (int, float)) and (isinstance(value, float) or str(value).replace('.', '', 1).isdigit())
 
-def get_config(key, default=None):
-   
-   key = key.lower()
+def get_config(key, is_creative):
+   config = get_full_config()
+   if is_creative:
+      config["model"] = config["model_filename_creative"]
+   else:
+      config["model"] = config["model_filename_cleanup"]
+   return config[key]
+
+def get_full_config():
 
    config = {
     "core_url_cleanup": "http://mini_mob:5032/process_request_cleanup",
@@ -51,8 +57,4 @@ def get_config(key, default=None):
     "model": ""
 }
 
-   # Check if the value is numeric and cast it to the appropriate type
-   if is_numeric(config[key]):
-       config[key] = int(config[key]) if float(config[key]).is_integer() else float(config[key])
-
-   return config.get(key, default)
+   return config

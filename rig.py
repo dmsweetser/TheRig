@@ -15,12 +15,12 @@ def log_message(message):
 def run_rig(script_path, log_filename, program_filename, requirements_key, requirements_filename):
         
     # Get default prompt from config or use a default value
-    default_prompt = get_config('default_prompt', "")
-    revision_prompt = get_config('revision_prompt', "") 
-    requirements_prompt = get_config(requirements_key, "")
+    default_prompt = get_config('default_prompt',False)
+    revision_prompt = get_config('revision_prompt',False) 
+    requirements_prompt = get_config(requirements_key,False)
 
     # Get the wrap up cutoff from config
-    wrap_up_cutoff = get_config('wrap_up_cutoff','')
+    wrap_up_cutoff = get_config('wrap_up_cutoff',False)
 
     logging.basicConfig(filename=log_filename, level=logging.INFO)
 
@@ -61,10 +61,10 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     
                 if len(original_code) > wrap_up_cutoff or run_error != "":
                     prompt = revision_prompt
-                    client_url = get_config("core_url_cleanup")
+                    client_url = get_config("core_url_cleanup",False)
                 else:
                     prompt = default_prompt
-                    client_url = get_config("core_url_creative")
+                    client_url = get_config("core_url_creative",False)
                     
                 if run_error != "":
                     message = f"<s><INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST>\n"
