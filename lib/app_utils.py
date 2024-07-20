@@ -43,7 +43,6 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
     llama_params = {
         "n_threads": "0",
         "n_threads_batch": "0",
-        "n_batch": "2048",
         "use_mmap": False,
         "use_mlock": False,
         "n_gpu_layers": "0",
@@ -51,25 +50,20 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
         "tensor_split": "",
         "main_gpu": "0",
         "top_p": "0.99",
-        "n_ctx": "32768"
-        "n_ctx": max_context,
+        "n_ctx": "32768",
         "rope_freq_base": "0",
         "numa": False,
-        "max_tokens": max_context,
         "verbose": True,
         "top_k": "85",
         "use_mlock": False,
         "temperature": "1",
         "repeat_penalty": "1.01",
         "max_tokens": "16384",
-        "n_gpu_layers": "0",
-        "tensor_split": "",
-        "rope_freq_base": "0",
         "typical_p": "0.68",
         "n_batch": "2048",
         "model": "model_path"
     }
-    
+
     try:
         return Llama(**llama_params)
     except Exception as e:
