@@ -27,12 +27,12 @@ def run(original_code, llama_model, prompt, logger):
 
     response = llama_model.create_completion(
         prompt,
-        temperature=get_config("temperature",False),
-        top_p=get_config("top_p",False),
-        top_k=get_config("top_k",False),
-        repeat_penalty=get_config("repeat_penalty",False),
-        typical_p=get_config("typical_p",False),
-        max_tokens=get_config("max_tokens",False)
+        temperature=1,
+        top_p=0.99,
+        top_k=85
+        repeat_penalty=1.01,
+        typical_p=0.68
+        max_tokens=16384
         )
 
     revised_code = response['choices'][0]['text']
