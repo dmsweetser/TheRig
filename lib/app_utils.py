@@ -40,7 +40,7 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
             return None
 
     # Define default llama.cpp parameters
-    default_llama_params = {
+    llama_params = {
         "n_threads": "0",
         "n_threads_batch": "0",
         "n_batch": "2048",
@@ -49,16 +49,27 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
         "n_gpu_layers": "0",
         "main_gpu": "0",
         "tensor_split": "",
+        "main_gpu": "0",
+        "top_p": "0.99",
+        "n_ctx": "32768"
         "n_ctx": max_context,
         "rope_freq_base": "0",
         "numa": False,
         "max_tokens": max_context,
-        "verbose": True
+        "verbose": True,
+        "top_k": "85",
+        "use_mlock": False,
+        "temperature": "1",
+        "repeat_penalty": "1.01",
+        "max_tokens": "16384",
+        "n_gpu_layers": "0",
+        "tensor_split": "",
+        "rope_freq_base": "0",
+        "typical_p": "0.68",
+        "n_batch": "2048",
+        "model": "model_path"
     }
-
-    # Update llama_params with values from config or use defaults
-    llama_params = {key: get_config(key,is_creative) for key in default_llama_params.items()}
-
+    
     try:
         return Llama(**llama_params)
     except Exception as e:
