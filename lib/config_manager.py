@@ -12,7 +12,8 @@ def get_config(key, is_creative):
       config["model"] = config["model_filename_creative"]
    else:
       config["model"] = config["model_filename_cleanup"]
-   return config[key]
+   config_value = config.get(key, "")
+   return config_value
 
 def get_full_config():
 
