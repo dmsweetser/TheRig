@@ -24,9 +24,6 @@ if not os.path.exists(get_config("log_folder","")):
 
 logger = CustomLogger(get_config("log_folder",""))
 
-# Load existing config or set defaults
-config = load_config()
-
 # Set defaults if not present in the config
 app.secret_key = get_config('secret_key', '')
 app.config['MODEL_FOLDER'] = get_config('model_folder', '')

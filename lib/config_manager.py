@@ -3,67 +3,55 @@ import os
 import shutil
 from lib.custom_logger import *
 
-def load_config():
-
-   config_file = "config.json"
-   user_config_file = "user_config.json"
-
-   if not os.path.isfile(user_config_file):
-       shutil.copy(config_file, user_config_file)
-
-   with open(user_config_file, 'r') as user_file:
-       user_config = json.load(user_file)
-
-   with open(config_file, 'r') as config_file:
-       config = json.load(config_file)
-
-       # Merge the user configuration with the main configuration
-       config = {**config, **user_config}
-
-       missing_keys = set(config.keys()) - set(user_config.keys())
-
-       if missing_keys:
-           raise Exception(f"Missing keys in user_config.json: {missing_keys}")
-
-           for key in missing_keys:
-               user_config[key] = config[key]
-
-           with open(user_config_file, 'w') as user_file:
-               json.dump(user_config, user_file, indent=2)
-
-       return user_config
-
 def is_numeric(value):
    return isinstance(value, (int, float)) and (isinstance(value, float) or str(value).replace('.', '', 1).isdigit())
 
 def get_config(key, default=None):
-   config = load_config()
-
-   config_file = "config.json"
-   user_config_file = "user_config.json"
-
-   if key not in config:
-       config[key] = default
-       update_config(key, default)
-       load_config()  # reload the config after updating it
+   
+   config_raw = '''
+        "core_url_cleanup": "http://mini_mob:5032/process_request_cleanup",
+        "core_url_creative": "http://mini_mob:5032/process_request_creative",
+        "n_threads_batch": 4,
+        "top_k": 85,
+        "use_mlock": false,
+        "n_threads": 4,
+        "max_file_size": 10485760,
+        "verbose": true,
+        "model_folder": "models/",
+        "temperature": 1,
+        "revisions_per_page": 10,
+        "repeat_penalty": 1.01,
+        "max_tokens": 16384,
+        "default_prompt": "Generate ONLY a full revision of this code that resolves all execution errors, completely implements all existing features and implements 5 additional new features. If any execution error is due to a missing file, include code that creates the file if it is not present.",
+        "n_gpu_layers": 0,
+        "tensor_split": "",
+        "model_filename_creative": "Mistral-7B-Instruct-v0.3-Q8_0.gguf",
+        "model_filename_cleanup": "mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
+        "model_url": "about:blank",
+        "port": "5032",
+        "rope_freq_base": 0,
+        "typical_p": 0.68,
+        "use_mmap": false,
+        "n_batch": 32,
+        "numa": false,
+        "host": "0.0.0.0",
+        "session_type": "filesystem",
+        "secret_key": "your_secret_key",
+        "extract_from_markdown": true,
+        "revision_prompt": "Generate ONLY a full revision of the code above that resolves all execution errors, completely removes all comments, and completely removes redundant code. If any execution error is due to a missing file, include code that creates the file if it is not present.",
+        "main_gpu": 0,
+        "top_p": 0.99,
+        "n_ctx": 32768,
+        "log_folder": "logs/",
+        "wrap_up_cutoff": 35000,
+        "requirements_prompt": "Generate ONLY a sample requirements.txt file in markdown that would work for this code.",
+        "nuget_prompt": "Generate ONLY a sample packages.config file in markdown that would work for this code."
+'''   
+   
+   config = json.loads(config_raw)
 
    # Check if the value is numeric and cast it to the appropriate type
    if is_numeric(config[key]):
        config[key] = int(config[key]) if float(config[key]).is_integer() else float(config[key])
 
    return config.get(key, default)
-
-def update_config(key, value):
-   config = load_config()
-
-   config_file = "config.json"
-   user_config_file = "user_config.json"
-
-   # Cast the value to the appropriate type if it is numeric
-   if is_numeric(value):
-       value = int(value) if float(value).is_integer() else float(value)
-
-   config[key] = value
-
-   with open(user_config_file, 'w') as file:
-       json.dump(config, file, indent=2)
