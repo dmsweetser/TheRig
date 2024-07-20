@@ -41,16 +41,16 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
 
     # Define default llama.cpp parameters
     default_llama_params = {
-        "n_threads": 0,
-        "n_threads_batch": 0,
-        "n_batch": 512,
+        "n_threads": "0",
+        "n_threads_batch": "0",
+        "n_batch": "2048",
         "use_mmap": False,
         "use_mlock": False,
-        "n_gpu_layers": 36,
-        "main_gpu": 0,
+        "n_gpu_layers": "0",
+        "main_gpu": "0",
         "tensor_split": "",
         "n_ctx": max_context,
-        "rope_freq_base": 0,
+        "rope_freq_base": "0",
         "numa": False,
         "max_tokens": max_context,
         "verbose": True
