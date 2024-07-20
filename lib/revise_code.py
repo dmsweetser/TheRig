@@ -29,9 +29,9 @@ def run(original_code, llama_model, prompt, logger):
         prompt,
         temperature=1,
         top_p=0.99,
-        top_k=85
+        top_k=85,
         repeat_penalty=1.01,
-        typical_p=0.68
+        typical_p=0.68,
         max_tokens=16384
         )
 
