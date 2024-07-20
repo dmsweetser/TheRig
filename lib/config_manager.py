@@ -8,6 +8,8 @@ def is_numeric(value):
 
 def get_config(key, default=None):
    
+   key = key.lower()
+
    config = {
     "core_url_cleanup": "http://mini_mob:5032/process_request_cleanup",
     "core_url_creative": "http://mini_mob:5032/process_request_creative",
