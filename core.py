@@ -57,7 +57,7 @@ def process_request(is_creative):
     prompt = data.get('prompt',False)
     file_contents = data.get('fileContents',False)
 
-    llm = load_model(app.config['MODEL_URL'], app.config['MODEL_FOLDER'], get_config("model",is_creative), app.config['MAX_CONTEXT'], logger)
+    llm = load_model(app.config['MODEL_URL'], app.config['MODEL_FOLDER'], get_config("model",is_creative), app.config['MAX_CONTEXT'], logger, is_creative)
     revision = revise_code.run(file_contents, llm, prompt, logger)
 
     # Save the dictionary as a JSON file with the current ticks as the name
