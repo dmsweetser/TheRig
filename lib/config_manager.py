@@ -23,7 +23,7 @@ def get_full_config():
     "max_file_size": 10485760,
     "model_folder": "models/",
     "revisions_per_page": 10,
-    "default_prompt": "Generate ONLY a full revision of this code that resolves all execution errors, completely implements all existing features and completely implements 10 additional new features. If any execution error is due to a missing file, include code that creates the file if it is not present.",
+    "default_prompt": "Generate ONLY a full revision of this code that resolves all execution errors, completely implements all existing features and adds 2 additional new features. If any execution error is due to a missing file, include code that creates the file if it is not present.",
     "model_filename_creative": "mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
     "model_filename_cleanup": "mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
     "model_url": "about:blank",
