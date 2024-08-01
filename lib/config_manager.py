@@ -65,7 +65,7 @@ def get_params():
         "n_batch": 2048
     }
    
-   return get_params
+   return params
 
 def get_key_from_params(key):
    params = get_params()
