@@ -45,9 +45,9 @@ def run(original_code, llama_model, prompt, logger):
     extract_from_markdown = get_config('extract_from_markdown',False)
     
     return_first_only = False
-    if get_config('requirements_prompt') in prompt:
+    if get_config('requirements_prompt',False) in prompt:
         return_first_only = True
-    if get_config('nuget_prompt') in prompt:
+    if get_config('nuget_prompt',False) in prompt:
         return_first_only = True
 
     if extract_from_markdown:
