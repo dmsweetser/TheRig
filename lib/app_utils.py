@@ -40,27 +40,7 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
             return None
 
     # Define default llama.cpp parameters
-    llama_params = {
-        "n_threads": get_key_from_params('n_threads'),
-        "n_threads_batch": get_key_from_params('n_threads_batch'),
-        "use_mmap": get_key_from_params('use_mmap'),
-        "use_mlock": get_key_from_params('use_mlock'),
-        "n_gpu_layers": get_key_from_params('n_gpu_layers'),
-        "main_gpu": get_key_from_params('main_gpu'),
-        "tensor_split": get_key_from_params('tensor_split'),
-        "top_p": get_key_from_params('top_p'),
-        "n_ctx": get_key_from_params('n_ctx'),
-        "rope_freq_base": get_key_from_params('rope_freq_base'),
-        "numa": get_key_from_params('numa'),
-        "verbose": get_key_from_params('verbose'),
-        "top_k": get_key_from_params('top_k'),
-        "use_mlock": get_key_from_params('use_mlock'),
-        "temperature": get_key_from_params('temperature'),
-        "repeat_penalty": get_key_from_params('repeat_penalty'),
-        "max_tokens": get_key_from_params('max_tokens'),
-        "typical_p": get_key_from_params('typical_p'),
-        "n_batch": get_key_from_params('n_batch')
-    }
+    llama_params = get_full_config()
 
     try:
         return Llama(model_path, **llama_params)
