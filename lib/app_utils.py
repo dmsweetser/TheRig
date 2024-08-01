@@ -40,27 +40,7 @@ def load_model(model_url, model_folder, model_filename, max_context, logger, is_
             return None
 
     # Define default llama.cpp parameters
-    llama_params = {
-        "n_threads": 0,
-        "n_threads_batch": 0,
-        "use_mmap": False,
-        "use_mlock": False,
-        "n_gpu_layers": 0,
-        "main_gpu": 0,
-        "tensor_split": "",
-        "top_p": 0.99,
-        "n_ctx": 32768,
-        "rope_freq_base": 0,
-        "numa": False,
-        "verbose": True,
-        "top_k": 85,
-        "use_mlock": False,
-        "temperature": 1,
-        "repeat_penalty": 1.01,
-        "max_tokens": 16384,
-        "typical_p": 0.68,
-        "n_batch": 2048
-    }
+    llama_params = get_params()
 
     try:
         return Llama(model_path, **llama_params)

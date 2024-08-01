@@ -1,9 +1,9 @@
 import re
-from lib.config_manager import get_config
+from lib.config_manager import *
 from lib.custom_logger import *
 import time
 
-def extract_code_blocks(markdown_text):
+def extract_code_blocks(markdown_text, return_first_only):
     code_blocks = []
     lines = markdown_text.split('\n')
     in_code_block = False
@@ -19,6 +19,10 @@ def extract_code_blocks(markdown_text):
             code_block = []
         elif in_code_block:
             code_block.append(line)
+
+    if return_first_only:
+        return code_blocks[0]
+
     return '\n\n'.join(code_blocks)
 
 def run(original_code, llama_model, prompt, logger):
@@ -27,12 +31,12 @@ def run(original_code, llama_model, prompt, logger):
 
     response = llama_model.create_completion(
         prompt,
-        temperature=1,
-        top_p=0.99,
-        top_k=85,
-        repeat_penalty=1.01,
-        typical_p=0.68,
-        max_tokens=16384
+        temperature=get_key_from_params('temperature'),
+        top_p=get_key_from_params('top_p'),
+        top_k=get_key_from_params('top_k'),
+        repeat_penalty=get_key_from_params('repeat_penalty'),
+        typical_p=get_key_from_params('typical_p'),
+        max_tokens= get_key_from_params('max_tokens')
         )
 
     revised_code = response['choices'][0]['text']
@@ -40,8 +44,14 @@ def run(original_code, llama_model, prompt, logger):
     # Check if extracting from Markdown is enabled in config
     extract_from_markdown = get_config('extract_from_markdown',False)
     
+    return_first_only = False
+    if get_config('requirements_prompt') in prompt:
+        return_first_only = True
+    if get_config('nuget_prompt') in prompt:
+        return_first_only = True
+
     if extract_from_markdown:
-        revised_code = extract_code_blocks(revised_code)
+        revised_code = extract_code_blocks(revised_code, return_first_only)
     
     end_time = time.time() # Get the end time
     duration = end_time - start_time # Calculate the duration
