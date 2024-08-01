@@ -33,9 +33,8 @@ echo Installing required packages...
 REM Install required packages
 
 REM Uncomment these to enable CUDA
-set "CMAKE_ARGS=-DLLAMA_CUBLAS=on"
+REM set "CMAKE_ARGS=-DLLAMA_CUBLAS=on"
 
-python -m pip install llama-cpp-python --force-reinstall --no-cache-dir -v
 pip install -r requirements.txt
 
 if %errorlevel% neq 0 (

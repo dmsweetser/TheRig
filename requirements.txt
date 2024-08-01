@@ -3,3 +3,4 @@ Flask
 markupsafe
 psutil
 gevent
+llama-cpp-python
