@@ -20,7 +20,7 @@ def extract_code_blocks(markdown_text, return_first_only):
         elif in_code_block:
             code_block.append(line)
 
-    if return_first_only:
+    if return_first_only and len(code_blocks) > 0:
         return code_blocks[0]
 
     return '\n\n'.join(code_blocks)
