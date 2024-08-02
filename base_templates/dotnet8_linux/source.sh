@@ -29,7 +29,7 @@ fi
 echo ".NET application built successfully."
 
 # Run the .NET application
-timeout 20 dotnet run --project source.csproj
+timeout -s KILL 20 dotnet run --project source.csproj
 if [ $? -ne 0 ]; then
     echo "Error: Unable to run the .NET application."
     exit 1
