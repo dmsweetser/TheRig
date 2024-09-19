@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf venv
+
 echo "Setting up Python virtual environment..."
 
 # Check if Python is installed
