@@ -35,8 +35,8 @@ def get_full_config():
     "revision_prompt": "Generate ONLY a production-ready revision of the code above, without additional commentary, that resolves all execution errors, completely removes all comments, completely implements all features, and completely removes redundant code. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
     "log_folder": "logs/",
     "wrap_up_cutoff": 70000,
-    "requirements_prompt": "Generate ONLY a sample requirements.txt file that would work for this code without version numbers or additional comments.",
-    "nuget_prompt": "Generate ONLY a sample packages.config file in markdown that would work for this code without version numbers or additional comments.",
+    "requirements_prompt": "Generate ONLY a sample requirements.txt surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
+    "nuget_prompt": "Generate ONLY a sample packages.config surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
 }
 
    return config
