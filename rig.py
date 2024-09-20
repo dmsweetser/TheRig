@@ -67,9 +67,9 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     client_url = get_config("core_url_creative",False)
                     
                 if run_error != "":
-                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST>\n"
+                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
                 elif run_error == "":
-                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST>\n"
+                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST> </s>\n"
                         
                 # Get response from web request
                 data = {
