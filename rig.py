@@ -105,9 +105,9 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 run_error = stderr.decode()[:3000]
 
                 if run_error != "":
-                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest execution error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST>\n"
+                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest execution error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST> </s>\n"
                 else:
-                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST>\n"
+                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST> </s>\n"
                 data = {
                     'prompt': message,
                     'fileContents': ''
