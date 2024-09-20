@@ -23,7 +23,7 @@ def get_full_config():
     "max_file_size": 10485760,
     "model_folder": "models/",
     "revisions_per_page": 10,
-    "default_prompt": "Generate ONLY a full revision of this code that resolves all execution errors, completely implements all existing features and adds 2 additional new features. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
+    "default_prompt": "Generate ONLY a production-ready revision of this code, without additional commentary, that resolves all execution errors, completely implements all existing features and adds 2 additional new features. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
     "model_filename_creative": "Mistral-Nemo-Instruct-2407-Q8_0.gguf",
     "model_filename_cleanup": "Mistral-Nemo-Instruct-2407-Q8_0.gguf",
     "model_url": "about:blank",
@@ -32,11 +32,11 @@ def get_full_config():
     "session_type": "filesystem",
     "secret_key": "your_secret_key",
     "extract_from_markdown": True,
-    "revision_prompt": "Generate ONLY a full revision of the code above that resolves all execution errors, completely removes all comments, completely implements all features, and completely removes redundant code. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
+    "revision_prompt": "Generate ONLY a production-ready revision of the code above, without additional commentary, that resolves all execution errors, completely removes all comments, completely implements all features, and completely removes redundant code. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
     "log_folder": "logs/",
     "wrap_up_cutoff": 70000,
-    "requirements_prompt": "Generate ONLY a sample requirements.txt file in markdown that would work for this code.",
-    "nuget_prompt": "Generate ONLY a sample packages.config file in markdown that would work for this code.",
+    "requirements_prompt": "Generate ONLY a sample requirements.txt file that would work for this code without version numbers or additional comments.",
+    "nuget_prompt": "Generate ONLY a sample packages.config file in markdown that would work for this code without version numbers or additional comments.",
 }
 
    return config
