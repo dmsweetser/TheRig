@@ -18,8 +18,8 @@ def get_config(key, is_creative):
 def get_full_config():
 
    config = {
-    "core_url_cleanup": "http://mini_mob:5032/process_request_cleanup",
-    "core_url_creative": "http://mini_mob:5032/process_request_creative",
+    "core_url_cleanup": "http://192.168.56.1:5032/process_request_cleanup",
+    "core_url_creative": "http://192.168.56.1:5032/process_request_creative",
     "max_file_size": 10485760,
     "model_folder": "models/",
     "revisions_per_page": 10,
