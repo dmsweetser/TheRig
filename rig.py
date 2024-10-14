@@ -59,7 +59,7 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 run_error = stderr.decode()[:3000]
                 log_message(run_error)  
                     
-                if len(original_code) > wrap_up_cutoff or run_error != "" or initial_prompt = "":
+                if len(original_code) > wrap_up_cutoff or run_error != "" or initial_prompt == "":
                     prompt = revision_prompt
                     client_url = get_config("core_url_cleanup",False)
                 else:
