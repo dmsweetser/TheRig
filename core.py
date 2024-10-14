@@ -53,7 +53,7 @@ def process_request(is_creative):
     file_name = "data_"
     error_prompt = get_config("error_prompt",False)
     
-    if (error_prompt not in data):
+    if (error_prompt not in data["prompt"]):
         file_name += "RC_"
 
     # Save the dictionary as a JSON file with the current ticks as the name
