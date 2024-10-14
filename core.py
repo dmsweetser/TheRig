@@ -50,8 +50,14 @@ def process_request(is_creative):
     now = datetime.datetime.now()
     current_ticks = now.strftime("%Y%m%d_%H%M%S")
 
+    file_name = "data_"
+    error_prompt = get_config("error_prompt",False)
+    
+    if (error_prompt not in data):
+        file_name += "RC_"
+
     # Save the dictionary as a JSON file with the current ticks as the name
-    with open(f"{get_config("log_folder",False)}data_{current_ticks}.json", "w") as outfile:
+    with open(f"{get_config("log_folder",False)}{file_name}{current_ticks}.json", "w") as outfile:
         json.dump(data, outfile, indent=4)
 
     prompt = data.get('prompt',False)

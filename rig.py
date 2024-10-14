@@ -58,6 +58,8 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 stdout, stderr = process.communicate()
                 run_error = stderr.decode()[:3000]
                 log_message(run_error)  
+
+                error_prompt = get_config("error_prompt",False)
                     
                 if len(original_code) > wrap_up_cutoff or run_error != "" or initial_prompt == "":
                     prompt = revision_prompt
@@ -70,7 +72,7 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                     initial_prompt = "Here is the original instruction:\n" + initial_prompt
                     
                 if run_error != "":
-                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
+                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n{error_prompt}\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
                 elif run_error == "":
                     message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST> </s>\n"
                         

@@ -37,6 +37,7 @@ def get_full_config():
     "wrap_up_cutoff": 70000,
     "requirements_prompt": "Generate ONLY a sample requirements.txt surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
     "nuget_prompt": "Generate ONLY a sample packages.config surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
+    "error_prompt": "Here is the latest execution error when I try to run the code:"
 }
 
    return config
