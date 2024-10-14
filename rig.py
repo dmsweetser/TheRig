@@ -59,17 +59,20 @@ def run_rig(script_path, log_filename, program_filename, requirements_key, requi
                 run_error = stderr.decode()[:3000]
                 log_message(run_error)  
                     
-                if len(original_code) > wrap_up_cutoff or run_error != "":
+                if len(original_code) > wrap_up_cutoff or run_error != "" or initial_prompt = "":
                     prompt = revision_prompt
                     client_url = get_config("core_url_cleanup",False)
                 else:
                     prompt = default_prompt
                     client_url = get_config("core_url_creative",False)
                     
+                if initial_prompt != "":
+                    initial_prompt = "Here is the original instruction:\n" + initial_prompt
+                    
                 if run_error != "":
-                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
+                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\nHere is the latest execution error when I try to run the code:\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
                 elif run_error == "":
-                    message = f"<INST>Here is the original instruction:\n{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST> </s>\n"
+                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST> </s>\n"
                         
                 # Get response from web request
                 data = {
