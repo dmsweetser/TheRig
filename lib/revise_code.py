@@ -40,6 +40,15 @@ def run(original_code, llama_model, prompt, logger):
         )
 
     revised_code = response['choices'][0]['text']
+
+    # Get the current ticks as a string
+    now = datetime.datetime.now()
+    current_ticks = now.strftime("%Y%m%d_%H%M%S")
+
+    file_name = "raw_response_"
+
+    with open(f"{get_config("log_folder",False)}{file_name}{current_ticks}.json", "w") as outfile:
+        json.dump(revised_code, outfile, indent=4)
     
     # Check if extracting from Markdown is enabled in config
     extract_from_markdown = get_config('extract_from_markdown',False)
