@@ -80,7 +80,7 @@ def run(original_code, llama_model, prompt, logger):
         logger.log(f"Generated code was too long")
         return original_code
     elif (len(revised_code) == len(original_code)):
-        revised_code += time.time()
+        revised_code += str(time.time())
         return revised_code
     else:
         return revised_code
