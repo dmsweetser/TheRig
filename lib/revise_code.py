@@ -79,8 +79,5 @@ def run(original_code, llama_model, prompt, logger):
     elif len(revised_code) > 1.7 * len(original_code) and len(original_code) > 10000:
         logger.log(f"Generated code was too long")
         return original_code
-    elif (len(revised_code) == len(original_code)):
-        revised_code += str(time.time())
-        return revised_code
     else:
         return revised_code
