@@ -45,29 +45,29 @@ def get_full_config():
 def get_params():
 
    params = {
-        "n_threads": 0,
-        "n_threads_batch": 0,
-        "use_mmap": False,
-        "use_mlock": False,
-        "n_gpu_layers": 0,
-        "main_gpu": 0,
-        "tensor_split": "",
-        "top_p": 0.99,
-        "n_ctx": 131072,
-        "rope_freq_base": 0,
-        "numa": False,
-        "verbose": True,
-        "top_k": 10,
-        "use_mlock": False,
-        "temperature": .6,
-        "repeat_penalty": 1.01,
-        "max_tokens": 65536,
-        "typical_p": 0.68,
-        "n_batch": 2048,
-        "min_p": 0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0
-    }
+      "n_threads": 0,
+      "n_threads_batch": 0,
+      "use_mmap": False,
+      "use_mlock": False,
+      "n_gpu_layers": 0,
+      "main_gpu": 0,
+      "tensor_split": "",
+      "top_p": 0.95,
+      "n_ctx": 131072,
+      "rope_freq_base": 0,
+      "numa": False,
+      "verbose": True,
+      "top_k": 40,
+      "temperature": 0.8,
+      "repeat_penalty": 1.01,
+      "max_tokens": 65536,
+      "typical_p": 0.68,
+      "n_batch": 2048,
+      "min_p": 0,
+      "frequency_penalty": 0,
+      "presence_penalty": 0.5
+   }
+
    
    return params
 
