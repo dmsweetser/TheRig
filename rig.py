@@ -1,195 +1,279 @@
 import os
+import re
 import datetime
+import docker
 import json
 import logging
 import subprocess
-from urllib.request import Request, urlopen
-from lib.config_manager import *
-import time
+from queue import Queue
+import threading
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+import requests
 
+    # "core_url_cleanup": "http://192.168.56.1:5032/process_request_cleanup",
+    # "core_url_creative": "http://192.168.56.1:5032/process_request_creative",
+    # "max_file_size": 10485760,
+    # "model_folder": "models/",
+    # "revisions_per_page": 10,
+    # "default_prompt": "Generate ONLY a production-ready revision of this code surrounded by triple-backticks, without additional commentary, that resolves all execution errors, completely implements all existing features and adds 2 additional new features. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
+    # "model_filename_creative": "Mistral-Nemo-Instruct-2407-Q8_0.gguf",
+    # "model_filename_cleanup": "Mistral-Nemo-Instruct-2407-Q8_0.gguf",
+    # "model_url": "about:blank",
+    # "port": "5032",    
+    # "host": "0.0.0.0",
+    # "session_type": "filesystem",
+    # "secret_key": "your_secret_key",
+    # "extract_from_markdown": True,
+    # "revision_prompt": "Generate ONLY a production-ready revision of the code above surrounded by triple-backticks, without additional commentary, that resolves all execution errors, completely removes all comments, completely implements all features, and completely removes redundant code. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error.",
+    # "log_folder": "logs/",
+    # "wrap_up_cutoff": 70000,
+    # "requirements_prompt": "Generate ONLY a sample requirements.txt surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
+    # "nuget_prompt": "Generate ONLY a sample packages.config surrounded by triple-backticks that would work for this code without version numbers or additional comments.",
+    # "error_prompt": "Here is the latest execution error when I try to run the code:"
 
-def log_message(message):
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    logging.info(f"{timestamp} - {message}")
+# Load config
+class Config:
+    LOGGING_ENABLED = True
+    LLM_API = "local"
+    LLM_API_KEY = "your_llm_api_key"
+    DOCKER_HOST = "localhost"
+    DOCKER_IMAGE_PYTHON = "python:latest"
+    DOCKER_IMAGE_DOTNET = "mcr.microsoft.com/dotnet/core/sdk:latest"
+    ENABLED = True
+    MODEL_FOLDER = "models"
+    MODEL_URL = "model_url"
+    MODEL_NAME = "Mistral-Nemo-Instruct-2407-Q8_0.gguf"
+    MAX_CONTEXT = 131072
+    REVISIONS_PER_PAGE = 10
+    SESSION_TYPE = "filesystem"
+    MAX_FILE_SIZE = 1024 * 1024 * 1024
+    LOG_FOLDER = "logs"
+    DEFAULT_PROMPT = "Generate ONLY a production-ready revision of this code surrounded by triple-backticks, without additional commentary, that resolves all execution errors, completely implements all existing features and adds 2 additional new features. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error."
+    REVISION_PROMPT = "Generate ONLY a production-ready revision of the code above surrounded by triple-backticks, without additional commentary, that resolves all execution errors, completely removes all comments, completely implements all features, and completely removes redundant code. The code you generate should be entirely self-contained, not relying on any external assets such as images or font files. Include code that verifies on start that every function in the code executes without error."
+    REQUIREMENTS_PROMPT = "Generate ONLY a sample requirements.txt surrounded by triple-backticks that would work for this code without version numbers or additional comments."
+    ERROR_PROMPT = "Here is the latest execution error when I try to run the code:"
+    WRAP_UP_CUTOFF = 70000
 
-def run_rig(script_path, log_filename, program_filename, requirements_key, requirements_filename):
-        
-    # Get default prompt from config or use a default value
-    default_prompt = get_config('default_prompt',False)
-    revision_prompt = get_config('revision_prompt',False) 
-    requirements_prompt = get_config(requirements_key,False)
+config = Config()
 
-    # Get the wrap up cutoff from config
-    wrap_up_cutoff = get_config('wrap_up_cutoff',False)
+# Set up logging
+if config.LOGGING_ENABLED:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
 
-    logging.basicConfig(filename=log_filename, level=logging.INFO)
-
-    with open(f"{script_path}prompt.txt", 'r') as prompt:
-        initial_prompt = prompt.read()
-
-    os.chdir(script_path)
-    script_path = "./"
-    
-    # This runs in a continuous loop until you kill it
-    while True:
-        try:
-            
-            git_path = script_path
-            batch_file = f"{script_path}source.sh"
-            script_file = f"{script_path}{program_filename}"
-            requirements_file = f"{script_path}{requirements_filename}"
-            
-            prompt_file = f"{script_path}prompt.txt"
-            with open(prompt_file, 'r') as prompt:
-                initial_prompt = prompt.read()
-            
-            if not is_git_repo_initialized(git_path):
-                log_message("Repository not initialized. Initializing...")
-                git_init(git_path)
-                log_message("Repository initialized.")
-            else:
-                log_message("Repository already initialized.")
-            
-            with open(script_file, 'r') as file:
-                
-                original_code = file.read()        
-                # Run bash script and capture output
-                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-                run_error = stderr.decode()[:3000]
-                log_message(run_error)  
-
-                error_prompt = get_config("error_prompt",False)
-                    
-                if len(original_code) > wrap_up_cutoff or run_error != "" or initial_prompt == "":
-                    prompt = revision_prompt
-                    client_url = get_config("core_url_cleanup",False)
-                else:
-                    prompt = default_prompt
-                    client_url = get_config("core_url_creative",False)
-                    
-                if initial_prompt != "":
-                    initial_prompt = "Here is the original instruction:\n" + initial_prompt
-                    
-                if run_error != "":
-                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n{error_prompt}\n{run_error}\n\n{prompt}\n\n</INST> </s>\n"
-                elif run_error == "":
-                    message = f"<INST>{initial_prompt}\nHere is the current code:\n```\n{original_code}\n```\n\n{prompt}\n\n</INST> </s>\n"
-                        
-                # Get response from web request
-                data = {
-                    'prompt': message,
-                    'fileContents': original_code
-                }
-                
-                req = Request(client_url, json.dumps(data).encode(), method="POST")
-                req.add_header('Content-Type', 'application/json')
-
-                try:
-                    response = urlopen(req)
-                    response_content = response.read()
-                    revised_code = response_content.decode()        
-                    
-                    log_message(f"Revised code length: {len(revised_code)}")
-                    log_message(f"Original code length: {len(original_code)}")
-                    
-                    os.remove(script_file)
-                    
-                    with open(script_file, 'w') as new_file:
-                        new_file.write(revised_code)
-                        
-                    git_commit(git_path, "Revision done by The Rig")
-                    log_message("Commit made for code revision")
-                    
-                except Exception as e:
-                    log_message(f"Error: {e}")                
-
-                # Run again to get latest error for the requirements file generation
-                process = subprocess.Popen(["bash", batch_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-                run_error = stderr.decode()[:3000]
-
-                if run_error != "":
-                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```Here is the latest execution error when I try to run the code:\n{run_error}\n\n{requirements_prompt}\n\n</INST> </s>\n"
-                else:
-                    message = f"<INST>Here is my current code:\n```\n{revised_code}\n```\n\n{requirements_prompt}\n\n</INST> </s>\n"
-                data = {
-                    'prompt': message,
-                    'fileContents': ''
-                }        
-                req = Request(client_url, json.dumps(data).encode(), method="POST")
-                req.add_header('Content-Type', 'application/json')
-                try:
-                    response = urlopen(req)
-                    response_content = response.read()
-                    new_requirements = response_content.decode()        
-                    
-                    if new_requirements != "":
-                        os.remove(requirements_file)
-                        
-                        with open(requirements_file, 'w') as new_file:
-                            new_file.write(new_requirements)
-                            
-                        git_commit(git_path, f"{requirements_filename} updated by The Rig")
-                        log_message(f"Commit made for {requirements_filename}")
-                    else:
-                        log_message(f"No commit made for {requirements_filename} - response was empty")
-                    
-                except Exception as e:
-                    log_message(f"Error: {e}")
-
-        except Exception as e:
-            log_message(f"Error: {e}")        
-            time.sleep(360)
-
-def is_git_repo_initialized(path):
+# LLM function
+def run_llm(prompt, input_code, language):
     try:
-        output = subprocess.check_output(["git", "rev-parse", "--is-initial-branch", path], stderr=subprocess.STDOUT, universal_newlines=True)
-        if output:
-            return False
+        if config.LLM_API == 'local':
+            # Instantiate LLM for each iteration
+            llama_params = {
+                "n_threads": 0,
+                "n_threads_batch": 0,
+                "use_mmap": False,
+                "use_mlock": False,
+                "n_gpu_layers": 0,
+                "main_gpu": 0,
+                "tensor_split": "",
+                "top_p": 0.95,
+                "n_ctx": config.MAX_CONTEXT,
+                "rope_freq_base": 0,
+                "numa": False,
+                "verbose": True,
+                "top_k": 40,
+                "temperature": 0.8,
+                "repeat_penalty": 1.01,
+                "max_tokens": 65536,
+                "typical_p": 0.68,
+                "n_batch": 2048,
+                "min_p": 0,
+                "frequency_penalty": 0,
+                "presence_penalty": 0.5
+            }
+            # Assuming you have a Llama class
+            llama = Llama(f"{config.MODEL_FOLDER}/{config.MODEL_NAME}", **llama_params)
+
+            # Generate complete revision of code, addressing build errors, surrounded by triple backticks
+            response = llama.create_completion( f"{prompt}")
+            output_code = response['choices'][0]['text'].split("```")[1].split("```")[0]
         else:
-            return True
-    except subprocess.CalledProcessError:
-        return False
+            # Use OpenAI-compatible API
+            response = requests.post(
+                f"{config.LLM_API}/completions",
+                headers={"Authorization": f"Bearer {config.LLM_API_KEY}"},
+                json={
+                    "prompt": f"{prompt}",
+                    "max_tokens": 65536,
+                    "temperature": 0.8,
+                    "top_p": 0.95,
+                    "n": 1,
+                    "stream": False,
+                    "logprobs": None,
+                    "echo": False,
+                    "stop": None,
+                    "timeout": None
+                }
+            )
+            output_code = response.json()['choices'][0]['text'].split("```")[1].split("```")[0]
+        return output_code
+    except Exception as e:
+        # Handle LLM call failure, return input code without throwing errors
+        logging.error(f"LLM call failed: {e}")
+        return input_code
 
-def git_init(path):
-    subprocess.check_call(["git", "init", path])
-    
-def git_commit(path, message):
-    subprocess.check_call(["git", "add", "--all"], cwd=path)
-    subprocess.check_call(["git", "commit", "-m", message, path])
+# Docker execution function
+def execute_code(code, language):
+    client = docker.DockerClient(base_url=f"{config.DOCKER_HOST}:2375")
+    if language == "py":
+        # Create requirements.txt
+        requirements = []
+        for line in code.splitlines():
+            if "import" in line:
+                module = line.split("import")[1].strip()
+                requirements.append(module)
+        with open("requirements.txt", "w") as f:
+            for requirement in requirements:
+                f.write(f"{requirement}\\n")
 
+        # Run Docker container
+        container = client.containers.run(
+            config.DOCKER_IMAGE_PYTHON,
+            command=f"bash -c 'pip install -r requirements.txt && python main.py'",
+            detach=True,
+            remove=True,
+            stdout=True,
+            stderr=True,
+            volumes={
+                "/app": {
+                    "bind": "/app",
+                    "mode": "rw"
+                }
+            }
+        )
+        build_output = container.logs(stdout=True, stderr=True).decode("utf-8")
+        return build_output
+    elif language == "cs":
+        container = client.containers.run(
+            config.DOCKER_IMAGE_DOTNET,
+            command=f"bash -c 'dotnet run'",
+            detach=True,
+            remove=True,
+            stdout=True,
+            stderr=True
+        )
+        build_output = container.logs(stdout=True, stderr=True).decode("utf-8")
+        return build_output
+
+# Function to sanitize app name
+def sanitize_app_name(app_name):
+    return re.sub(r'[^a-zA-Z0-9_\\-]', '', app_name)
+
+# Function to process app request
+def process_app_request(app_name, prompt, language, input_code):
+    # Run LLM
+    output_code = run_llm(prompt, input_code, language)
+
+    # Execute code in Docker
+    build_output = execute_code(output_code, language)
+
+    # Store iteration in app_results folder
+    app_results_folder = f"app_results/{sanitize_app_name(app_name)}/{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+    if not os.path.exists(app_results_folder):
+        os.makedirs(app_results_folder)
+
+    with open(f"{app_results_folder}/output_code.txt", "w") as f:
+        f.write(output_code)
+
+    with open(f"{app_results_folder}/build_output.txt", "w") as f:
+        f.write(build_output)
+
+    if build_output.strip() == "":
+        with open(f"{app_results_folder}/release_candidate.txt", "w") as f:
+            f.write("Release candidate")
+
+    return build_output
+
+# Function to read app requests from app_requests folder
+def read_app_requests():
+    app_requests = []
+    for filename in os.listdir("app_requests"):
+        if filename.endswith(".txt"):
+            with open(f"app_requests/{filename}", "r") as f:
+                prompt = f.read()
+                app_name = filename.split(".")[0]
+                language = "py" if "python" in prompt.lower() else "cs"
+                input_code = ""
+                app_requests.append((app_name, prompt, language, input_code))
+    return app_requests
+
+# Main function
 def main():
-    print("What framework should the rig use?")
-    print("1. dotnet 8")
-    print("2. python 3.9")
-    print("3. python 3.12")
+    if not os.path.exists(config.LOG_FOLDER):
+        os.makedirs(config.LOG_FOLDER)
 
-    choice = input("Enter your choice (1/2/3): ")
+    logging.basicConfig(filename=f"{config.LOG_FOLDER}/app.log", level=logging.INFO)
 
-    if choice == "1":
-        run_rig(
-            "base_templates/dotnet8_linux/", 
-            "rig_dotnet8_linux.log",
-            "Program.cs",
-            "nuget_prompt",
-            "packages.config")
-    elif choice == "2":
-        run_rig(
-            "base_templates/python39_linux/", 
-            "rig_python39_linux.log",
-            "source.py",
-            "requirements_prompt",
-            "requirements.txt")
-    elif choice == "3":
-        run_rig(
-            "base_templates/python312_linux/", 
-            "rig_python312_linux.log",
-            "source.py",
-            "requirements_prompt",
-            "requirements.txt")
-    else:
-        print("Invalid choice. Please enter 1, 2, or 3.")
+    app_requests = read_app_requests()
+    while True:
+        for app_name, prompt, language, input_code in app_requests:
+            build_output = process_app_request(app_name, prompt, language, input_code)
+            logging.info(f"Processed {app_name} with build output: {build_output}")
+
+            # Get default prompt from config or use a default value
+            default_prompt = config.DEFAULT_PROMPT
+            revision_prompt = config.REVISION_PROMPT 
+            requirements_prompt = config.REQUIREMENTS_PROMPT
+
+            # Get the wrap up cutoff from config
+            wrap_up_cutoff = config.WRAP_UP_CUTOFF
+
+            if len(input_code) > wrap_up_cutoff or build_output != "":
+                prompt = revision_prompt
+            else:
+                prompt = default_prompt
+
+            if input_code != "":
+                message = f"<INST>Here is the original instruction:\\n{prompt}\\nHere is the current code:\\n```\\n{input_code}\\n```\\n</INST> </s>\\n"
+            else:
+                message = f"<INST>{prompt}\\n</INST> </s>\\n"
+
+            # Get response from LLM
+            output_code = run_llm(message, input_code, language)
+
+            # Execute code in Docker
+            build_output = execute_code(output_code, language)
+
+            # Store iteration in app_results folder
+            app_results_folder = f"app_results/{sanitize_app_name(app_name)}/{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+            if not os.path.exists(app_results_folder):
+                os.makedirs(app_results_folder)
+
+            with open(f"{app_results_folder}/output_code.txt", "w") as f:
+                f.write(output_code)
+
+            with open(f"{app_results_folder}/build_output.txt", "w") as f:
+                f.write(build_output)
+
+            if build_output.strip() == "":
+                with open(f"{app_results_folder}/release_candidate.txt", "w") as f:
+                    f.write("Release candidate")
+
+            # Run again to get latest error for the requirements file generation
+            build_output = execute_code(output_code, language)
+
+            if build_output != "":
+                message = f"<INST>Here is my current code:\\n
+```\\n{output_code}\\n```Here is the latest execution error when I try to run the code:\\n{build_output}\\n\\n{requirements_prompt}\\n\\n</INST> </s>\\n"
+            else:
+                message = f"<INST>Here is my current code:\\n```\\n{output_code}\\n```\\n\\n{requirements_prompt}\\n\\n</INST> </s>\\n"
+
+            # Get response from LLM
+            new_requirements = run_llm(message, "", language)
+
+            if new_requirements != "":
+                with open(f"{app_results_folder}/requirements.txt", "w") as f:
+                    f.write(new_requirements)
 
 if __name__ == "__main__":
     main()
