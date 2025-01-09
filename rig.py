@@ -313,8 +313,7 @@ def main():
                 prompt = default_prompt
 
             if input_code != "":
-                message = f"<INST>Here is the original instruction:\\n{prompt}\\nHere is the current code:\\n
-```\\n{input_code}\\n```\\n</INST> </s>\\n"
+                message = f"<INST>Here is the original instruction:\\n{prompt}\\nHere is the current code:\\n```\\n{input_code}\\n```\\n</INST> </s>\\n"
             else:
                 message = f"<INST>{prompt}\\n</INST> </s>\\n"
 
