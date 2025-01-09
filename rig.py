@@ -20,6 +20,8 @@ class Config:
     DOCKER_HOST = "localhost"
     DOCKER_IMAGE_PYTHON = "python:latest"
     DOCKER_IMAGE_DOTNET = "mcr.microsoft.com/dotnet/core/sdk:latest"
+    DOCKER_IMAGE_JAVA = "openjdk:latest"
+    DOCKER_IMAGE_GOSU = "gosu/gosu:latest"
     ENABLED = True
     MODEL_FOLDER = "models"
     MODEL_URL = "model_url"
@@ -39,9 +41,9 @@ config = Config()
 
 # Set up logging
 if config.LOGGING_ENABLED:
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 else:
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def extract_code_blocks(markdown_text, return_first_only):
     code_blocks = []
@@ -51,9 +53,7 @@ def extract_code_blocks(markdown_text, return_first_only):
 
     for line in lines:
         if line.startswith('```') and in_code_block == False:
-
             in_code_block = True
-
         elif line.startswith('```') and in_code_block == True:
             if code_block:
                 code_blocks.append('\\n'.join(code_block))
@@ -150,19 +150,19 @@ def run_llm(original_code, llama_model, prompt, language):
     end_time = time.time() # Get the end time
     duration = end_time - start_time # Calculate the duration
 
-    print(f"Total duration in seconds: {duration}")
+    logging.info(f"Total duration in seconds: {duration}")
 
-    logger.log(f"Original code length (not tokens): {len(original_code)}")
-    logger.log(f"New code length (not tokens): {len(revised_code)}")
+    logging.info(f"Original code length (not tokens): {len(original_code)}")
+    logging.info(f"New code length (not tokens): {len(revised_code)}")
 
     if len(revised_code) < 0.8 * len(original_code) and len(original_code) > 10000:
-        logger.log(f"Generated code was too short")
+        logging.info(f"Generated code was too short")
         return original_code
     elif len(revised_code) == 0:
-        logger.log(f"Generated code was blank")
+        logging.info(f"Generated code was blank")
         return original_code
     elif len(revised_code) > 1.7 * len(original_code) and len(original_code) > 10000:
-        logger.log(f"Generated code was too long")
+        logging.info(f"Generated code was too long")
         return original_code
     else:
         return revised_code
@@ -209,6 +209,40 @@ def execute_code(code, language):
         )
         build_output = container.logs(stdout=True, stderr=True).decode("utf-8")
         return build_output
+    elif language == "java":
+        container = client.containers.run(
+            config.DOCKER_IMAGE_JAVA,
+            command=f"bash -c 'javac Main.java && java Main'",
+            detach=True,
+            remove=True,
+            stdout=True,
+            stderr=True,
+            volumes={
+                "/app": {
+                    "bind": "/app",
+                    "mode": "rw"
+                }
+            }
+        )
+        build_output = container.logs(stdout=True, stderr=True).decode("utf-8")
+        return build_output
+    elif language == "gosu":
+        container = client.containers.run(
+            config.DOCKER_IMAGE_GOSU,
+            command=f"bash -c 'gosu Main.gosu'",
+            detach=True,
+            remove=True,
+            stdout=True,
+            stderr=True,
+            volumes={
+                "/app": {
+                    "bind": "/app",
+                    "mode": "rw"
+                }
+            }
+        )
+        build_output = container.logs(stdout=True, stderr=True).decode("utf-8")
+        return build_output
 
 # Function to sanitize app name
 def sanitize_app_name(app_name):
@@ -217,7 +251,7 @@ def sanitize_app_name(app_name):
 # Function to process app request
 def process_app_request(app_name, prompt, language, input_code, logger):
     # Run LLM
-    output_code = run_llm(input_code, None, prompt, logger, language)
+    output_code = run_llm(input_code, None, prompt, language)
 
     # Execute code in Docker
     build_output = execute_code(output_code, language)
@@ -247,7 +281,7 @@ def read_app_requests():
             with open(f"app_requests/{filename}", "r") as f:
                 prompt = f.read()
                 app_name = filename.split(".")[0]
-                language = "py" if "python" in prompt.lower() else "cs"
+                language = "py" if "python" in prompt.lower() else "cs" if "c#" in prompt.lower() else "java" if "java" in prompt.lower() else "gosu" if "gosu" in prompt.lower() else "py"
                 input_code = ""
                 app_requests.append((app_name, prompt, language, input_code))
     return app_requests
@@ -262,7 +296,7 @@ def main():
     app_requests = read_app_requests()
     while True:
         for app_name, prompt, language, input_code in app_requests:
-            build_output = process_app_request(app_name, prompt, language, input_code, logger)
+            build_output = process_app_request(app_name, prompt, language, input_code, logging)
             logging.info(f"Processed {app_name} with build output: {build_output}")
 
             # Get default prompt from config or use a default value
@@ -279,7 +313,8 @@ def main():
                 prompt = default_prompt
 
             if input_code != "":
-                message = f"<INST>Here is the original instruction:\\n{prompt}\\nHere is the current code:\\n```\\n{input_code}\\n```\\n</INST> </s>\\n"
+                message = f"<INST>Here is the original instruction:\\n{prompt}\\nHere is the current code:\\n
+```\\n{input_code}\\n```\\n</INST> </s>\\n"
             else:
                 message = f"<INST>{prompt}\\n</INST> </s>\\n"
 
