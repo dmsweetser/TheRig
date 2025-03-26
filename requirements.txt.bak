@@ -4,3 +4,5 @@ markupsafe
 psutil
 gevent
 llama-cpp-python
+docker
+llama-cpp-python
